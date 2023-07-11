@@ -11,6 +11,7 @@
     lifetime: "{{ lifetime }}"
     max_clients: "{{ max_clients }}"
     name_prefix: "{{ name_prefix }}"
+  delegate_to: localhost
   register: token
 
 - name: set vars for silent installer
@@ -49,6 +50,7 @@
     query_param: "name"
     query_param_value: "{{ ansible_ssh_host }}" 
     resource_type: "cte-client"
+  delegate_to: localhost
   register: client
   ignore_errors: true
 
@@ -58,6 +60,7 @@
     query_param: username
     query_param_value: "{{ username }}"
     resource_type: users
+  delegate_to: localhost
   register: user
   ignore_errors: true
 
@@ -97,6 +100,7 @@
         cte_versioned: false
     xts: false
     localNode: "{{ this_node_connection_string }}"
+  delegate_to: localhost
   register: key
 
 - name: "Create CTE Policy Element - Resource Set"
@@ -111,6 +115,7 @@
         file: "*"
         include_subfolders: true
         hdfs: false
+  delegate_to: localhost
   register: resourceSet
 
 - name: "Create CTE Policy"
@@ -138,6 +143,7 @@
     data_transform_rules:
       - key_id: "{{ key['response']['id'] }}"
         resource_set_id: "{{ resourceSet['response']['id'] }}"
+  delegate_to: localhost
   register: policy
 
 - name: "Add Guard Paths to the CTE Client"
@@ -150,4 +156,5 @@
       guard_point_type: directory_auto
       policy_id: "{{ policy['response']['id'] }}"
       automount_enabled: true
+  delegate_to: localhost
   register: output
