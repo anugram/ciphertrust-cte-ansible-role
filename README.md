@@ -11,6 +11,7 @@ Requirements
 
 * Running instance of Thales CipherTrust Manager for which you may use the free-forever community edition available at https://ciphertrust.io
 * CipherTrust Transparent Encryption Agent binary file
+* Copy the above binary file in the files folder
 
 Role Variables
 --------------
