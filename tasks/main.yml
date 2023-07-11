@@ -1,0 +1,153 @@
+---
+# tasks file for cte-install
+- name: create registration token
+  thalesgroup.ciphertrust.cm_regtoken:
+    localNode: "{{ this_node_connection_string }}"
+    op_type: create
+    ca_id: "{{ ca_id }}"
+    cert_duration: "{{ cert_duration }}"
+    label:
+      ClientProfile: "{{ client_profile }}"
+    lifetime: "{{ lifetime }}"
+    max_clients: "{{ max_clients }}"
+    name_prefix: "{{ name_prefix }}"
+  register: token
+
+- name: set vars for silent installer
+  set_fact:
+    kms_ip: "{{ this_node_address }}"
+    reg_token: "{{ token['response']['id'] }}"
+    agent_ip: "{{ ansible_ssh_host }}"
+
+- name: Create the Jinja2 based template
+  template:
+    src: "silent.conf.j2"
+    dest: "/tmp/silent.txt"
+
+- name: Copy file with owner and permissions
+  ansible.builtin.copy:
+    src: "{{ agent_binary_name }}"
+    dest: /tmp/"{{ agent_binary_name }}"
+    mode: '0777'
+
+- name: Install lsof
+  ansible.builtin.apt:
+    name: 
+      - lsof
+      - libcpprest2.10
+    state: present
+
+- name: "Install CTE Agent"
+  shell: |
+    cd /tmp
+    ./"{{ agent_binary_name }}" -s silent.txt
+  register: install_logs
+
+- name: "Get CTE Client ID from Name"
+  thalesgroup.ciphertrust.cm_resource_get_id_from_name:
+    localNode: "{{ this_node_connection_string }}"
+    query_param: "name"
+    query_param_value: "{{ ansible_ssh_host }}" 
+    resource_type: "cte-client"
+  register: client
+  ignore_errors: true
+
+- name: "Get User ID from Name"
+  thalesgroup.ciphertrust.cm_resource_get_id_from_name:
+    localNode: "{{ this_node_connection_string }}"
+    query_param: username
+    query_param_value: "{{ username }}"
+    resource_type: users
+  register: user
+  ignore_errors: true
+
+- name: "Create Key"
+  thalesgroup.ciphertrust.vault_keys2_save:
+    op_type: create
+    name: "{{ key_name }}"
+    algorithm: "{{ key_algo }}"
+    size: "{{ key_size }}"
+    undeletable: false
+    unexportable: false
+    usageMask: 76
+    meta:
+      ownerId: "{{ user['response']['id'] }}"
+      permissions:
+        DecryptWithKey:
+          - "CTE Clients"
+        EncryptWithKey:
+          - "CTE Clients"
+        ExportKey:
+          - "CTE Clients"
+        MACVerifyWithKey:
+          - "CTE Clients"
+        MACWithKey:
+          - "CTE Clients"
+        ReadKey:
+          - "CTE Clients"
+        SignVerifyWithKey:
+          - "CTE Clients"
+        SignWithKey:
+          - "CTE Clients"
+        UseKey:
+          - "CTE Clients"
+      cte:
+        persistent_on_client: true
+        encryption_mode: CBC
+        cte_versioned: false
+    xts: false
+    localNode: "{{ this_node_connection_string }}"
+  register: key
+
+- name: "Create CTE Policy Element - Resource Set"
+  thalesgroup.ciphertrust.cte_resource_set:
+    localNode: "{{ this_node_connection_string }}"
+    op_type: create
+    name: "{{ resource_set_name }}"
+    description: "Created via Ansible"
+    type: Directory
+    resources:
+      - directory: "/"
+        file: "*"
+        include_subfolders: true
+        hdfs: false
+  register: resourceSet
+
+- name: "Create CTE Policy"
+  thalesgroup.ciphertrust.cte_policy_save:
+    localNode: "{{ this_node_connection_string }}"
+    op_type: create
+    name: "{{ cte_policy_name }}"
+    description: "Created via Ansible"
+    never_deny: false
+    metadata:
+      restrict_update: false
+    security_rules:
+      - action: key_op
+        effect: "permit,applykey"
+        partial_match: true
+      - resource_set_id: "{{ resourceSet['response']['id'] }}"
+        exclude_resource_set: false
+        partial_match: true
+        action: all_ops
+        effect: "permit,audit,applykey"
+    policy_type: Standard
+    key_rules:
+      - key_id: "{{ key['response']['id'] }}"
+        resource_set_id: "{{ resourceSet['response']['id'] }}"
+    data_transform_rules:
+      - key_id: "{{ key['response']['id'] }}"
+        resource_set_id: "{{ resourceSet['response']['id'] }}"
+  register: policy
+
+- name: "Add Guard Paths to the CTE Client"
+  thalesgroup.ciphertrust.cte_client:
+    localNode: "{{ this_node_connection_string }}"
+    op_type: add_guard_point
+    id: "{{ client['response']['id'] }}"
+    guard_paths: "{{ guard_paths }}"
+    guard_point_params:
+      guard_point_type: directory_auto
+      policy_id: "{{ policy['response']['id'] }}"
+      automount_enabled: true
+  register: output
