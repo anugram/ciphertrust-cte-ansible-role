@@ -63,6 +63,12 @@
   register: user
   ignore_errors: true
 
+- name: Create directory to be guarded
+  file:
+    path: /opt/path1/
+    state: directory
+    mode: 0777
+
 - name: "Create Key"
   thalesgroup.ciphertrust.vault_keys2_save:
     op_type: create
