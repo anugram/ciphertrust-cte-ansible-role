@@ -1,5 +1,6 @@
 ---
 
-- hosts: localhost
+- hosts: cte-clients
+  become: yes
   roles:
-    - ciphertrust-cte-ansible-role
+    - anugram.ciphertrust_cte_ansible_role

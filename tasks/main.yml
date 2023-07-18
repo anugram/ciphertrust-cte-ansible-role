@@ -28,7 +28,7 @@
 - name: Copy file with owner and permissions
   ansible.builtin.copy:
     src: "{{ agent_binary_name }}"
-    dest: /tmp/"{{ agent_binary_name }}"
+    dest: /tmp/
     mode: '0777'
 
 - name: Install lsof
@@ -41,7 +41,7 @@
 - name: "Install CTE Agent"
   shell: |
     cd /tmp
-    ./"{{ agent_binary_name }}" -s silent.txt
+    ./{{ agent_binary_name }} -s silent.txt
   register: install_logs
 
 - name: "Get CTE Client ID from Name"
@@ -50,7 +50,6 @@
     query_param: "name"
     query_param_value: "{{ ansible_ssh_host }}" 
     resource_type: "cte-client"
-  delegate_to: localhost
   register: client
   ignore_errors: true
 
