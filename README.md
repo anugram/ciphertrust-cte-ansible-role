@@ -52,7 +52,7 @@ ansible-galaxy collection install thalesgroup.ciphertrust
 Example Playbook
 ----------------
 
-Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
+Use the sample_playbook.yml as below
 ```
 ---
 
@@ -61,6 +61,12 @@ Including an example of how to use your role (for instance, with variables passe
   roles:
     - anugram.ciphertrust_cte_ansible_role
 ```
+
+Run the sample playbook -
+```
+ansible-playbook -i tests/inventory sample_playbook.yml  -u <user_target_machine> --ask-become-pass -vvv
+```
+This role has to be executed with admin user for CTE to get installed. 
 
 License
 -------
