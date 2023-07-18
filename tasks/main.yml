@@ -108,6 +108,14 @@
   delegate_to: localhost
   register: key
 
+- name: Enable LDT on the CTE client
+  thalesgroup.ciphertrust.cte_client:
+    localNode: "{{ this_node_connection_string }}"
+    op_type: patch
+    id: "{{ client['response']['id'] }}"
+    password_creation_method: GENERATE
+    enabled_capabilities: LDT
+
 - name: "Create CTE Policy Element - Resource Set"
   thalesgroup.ciphertrust.cte_resource_set:
     localNode: "{{ this_node_connection_string }}"
@@ -149,6 +157,7 @@
           key_id: "{{ key['response']['id'] }}"
         transformation_key:
           key_id: clear_key
+          key_type: name
   delegate_to: localhost
   register: policy
 
@@ -161,6 +170,5 @@
     guard_point_params:
       guard_point_type: directory_auto
       policy_id: "{{ policy['response']['id'] }}"
-      automount_enabled: true
   delegate_to: localhost
   register: output
