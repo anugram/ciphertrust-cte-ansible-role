@@ -116,7 +116,7 @@
     description: "Created via Ansible"
     type: Directory
     resources:
-      - directory: "/"
+      - directory: "/opt/path1/"
         file: "*"
         include_subfolders: true
         hdfs: false
@@ -135,7 +135,7 @@
     security_rules:
       - action: key_op
         effect: "permit,applykey"
-        partial_match: true
+        partial_match: false
       - resource_set_id: "{{ resourceSet['response']['id'] }}"
         exclude_resource_set: false
         partial_match: true
