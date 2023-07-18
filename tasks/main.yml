@@ -140,14 +140,15 @@
         exclude_resource_set: false
         partial_match: true
         action: all_ops
-        effect: "permit,audit,applykey"
-    policy_type: Standard
-    key_rules:
-      - key_id: "{{ key['response']['id'] }}"
+        effect: "permit,applykey"
+    policy_type: LDT
+    ldt_key_rules:
+      - is_exclusion_rule: false
         resource_set_id: "{{ resourceSet['response']['id'] }}"
-    data_transform_rules:
-      - key_id: "{{ key['response']['id'] }}"
-        resource_set_id: "{{ resourceSet['response']['id'] }}"
+        current_key:
+          key_id: "{{ key['response']['id'] }}"
+        transformation_key:
+          key_id: clear_key
   delegate_to: localhost
   register: policy
 
