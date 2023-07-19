@@ -1,9 +1,9 @@
 ---
 # defaults file for cte-install
-this_node_address: 20.20.20.20
+this_node_address: "{{ KMS_IP }}"
 this_node_private_ip: 10.10.10.10
 this_node_username: admin
-this_node_password: StrongPassword!
+this_node_password: "{{ KMS_PWD }}"
 
 this_node_connection_string:
   server_ip: "{{ this_node_address }}"
@@ -13,7 +13,7 @@ this_node_connection_string:
   password: "{{ this_node_password }}"
   verify: False
 
-ca_id: c118120d-cae2-4ed9-9bbd-32690e2ca94b
+ca_id: "{{ CA_ID }}"
 cert_duration: 730
 client_profile: DefaultClientProfile
 lifetime: 30d
@@ -24,10 +24,10 @@ name_prefix: ansible
 # download the binary from thales portal
 agent_binary_name: vee-fs-7.4.0-101-ubuntu22-x86_64.bin
 username: admin
-key_name: AnsibleCTEKey
+key_name: "{{ KEY_NAME }}"
 key_algo: aes
 key_size: 256
-resource_set_name: Ansible-RS-001
-cte_policy_name: Ansible-CTE-Policy
+resource_set_name: "{{ RSET_NAME }}"
+cte_policy_name: "{{ POLICY_NAME }}"
 guard_paths:
   - "/opt/path1/"
