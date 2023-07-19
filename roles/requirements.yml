@@ -2,11 +2,8 @@
 roles:
   # Install a role from Ansible Galaxy.
   - name: anugram.ciphertrust_cte_ansible_role
-    version: "1.0.0" # note that ranges are not supported for roles
 
 
 collections:
   # Install a collection from Ansible Galaxy.
   - name: thalesgroup.ciphertrust
-    version: ">=1.0.0"
-    source: https://galaxy.ansible.com
