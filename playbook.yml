@@ -1,6 +1,6 @@
 ---
-  - name: "Sample Playbook"
-    tasks:
+- name: "Sample Playbook"
+  tasks:
     - name: create registration token
       thalesgroup.ciphertrust.cm_regtoken:
         localNode: "{{ this_node_connection_string }}"
