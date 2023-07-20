@@ -27,7 +27,7 @@
 
 - name: Copy file with owner and permissions
   ansible.builtin.copy:
-    src: "{{ agent_binary_path }}"
+    src: "{{ agent_binary_name }}"
     dest: /tmp/
     mode: '0777'
 
