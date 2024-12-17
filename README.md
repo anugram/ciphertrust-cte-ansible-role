@@ -4,7 +4,7 @@ ciphertrust-cte-ansible-role
 This role allows the administrator to install CipherTrust Transparent Encryption agent on a target machine like Ubuntu as well as configure CipherTrust Manager to apply policies for the agent.
 
 Install role -
-```ansible-galaxy install anugram.ciphertrust_cte_ansible_role```
+```ansible-galaxy role install anugram.ciphertrust_cte_ansible_role```
 
 Requirements
 ------------
